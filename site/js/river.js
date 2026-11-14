@@ -49,7 +49,11 @@
   document.addEventListener("pointerdown", ev => { if (!ev.target.closest?.(".scrub")) endTouch(); }, true);
   addEventListener("scroll", endTouch, { passive: true });
   function scrub(sel, move, leave) {
-    sel.classed("scrub", true).style("touch-action", "pan-y")
+    // pan-y on the outer <svg> too: some mobile browsers ignore touch-action on shapes inside an SVG
+    const svgEl = sel.node().ownerSVGElement;
+    [sel.node(), svgEl].forEach(n => { if (n) { n.style.touchAction = "pan-y"; n.style.touchAction = "pan-y pinch-zoom"; } });
+    if (svgEl) svgEl.classList.add("scrub");
+    sel.classed("scrub", true)
       .on("pointerdown pointermove", ev => {
         if (ev.pointerType !== "mouse") {
           if (clearTouch && clearTouch !== leave) clearTouch();

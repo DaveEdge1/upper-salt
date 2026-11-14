@@ -51,6 +51,10 @@ jobs:
         run: |
           mkdir -p _site
           rsync -a --exclude build/ --exclude README.md site/ _site/
+          # new script and stylesheet URLs on every deploy, so browsers do not keep running old code
+          v=${GITHUB_SHA::7}
+          sed -i -E "s#(src|href)=\"(js/[a-z]+\.js|css/[a-z]+\.css)\"#\1=\"\2?v=$v\"#g" _site/*.html
+          grep -ho '[a-z]*/[a-z]*\.\(js\|css\)?v=[0-9a-f]*' _site/*.html | sort -u
           du -sh _site
 
       - uses: actions/upload-pages-artifact@v3
