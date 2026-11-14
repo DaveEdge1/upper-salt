@@ -27,12 +27,38 @@
     tip.hidden = false;
     const pad = 14, r = tip.getBoundingClientRect();
     let x = ev.clientX + pad, y = ev.clientY + pad;
-    if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - pad;
-    if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - pad;
+    if (ev.pointerType && ev.pointerType !== "mouse") {
+      // finger: centre the readout above the touch point so the finger does not cover it
+      x = Math.min(ev.clientX - r.width / 2, innerWidth - r.width - 8);
+      y = ev.clientY - r.height - 36;
+      if (y < 8) y = ev.clientY + 36;
+    } else {
+      if (x + r.width > innerWidth - 8) x = ev.clientX - r.width - pad;
+      if (y + r.height > innerHeight - 8) y = ev.clientY - r.height - pad;
+    }
     tip.style.left = `${Math.max(8, x)}px`;
     tip.style.top = `${Math.max(8, y)}px`;
   }
   const hideTip = () => { tip.hidden = true; };
+
+  // Chart hover that also works on touch screens. Mouse: hover as usual. Finger or pen: tap a point,
+  // or drag sideways to scrub along the chart (vertical swipes still scroll the page); the readout
+  // stays until you tap somewhere else or scroll.
+  let clearTouch = null;
+  const endTouch = () => { if (clearTouch) { clearTouch(); clearTouch = null; } };
+  document.addEventListener("pointerdown", ev => { if (!ev.target.closest?.(".scrub")) endTouch(); }, true);
+  addEventListener("scroll", endTouch, { passive: true });
+  function scrub(sel, move, leave) {
+    sel.classed("scrub", true).style("touch-action", "pan-y")
+      .on("pointerdown pointermove", ev => {
+        if (ev.pointerType !== "mouse") {
+          if (clearTouch && clearTouch !== leave) clearTouch();
+          clearTouch = leave;
+        }
+        move(ev);
+      })
+      .on("pointerleave", ev => { if (ev.pointerType === "mouse") leave(); });
+  }
   const row = (k, v) => `<div class="r"><span>${k}</span><b>${v}</b></div>`;
 
   function legend(el, items) {
@@ -394,8 +420,7 @@
       hoverLine = [cross];
       svg.append("rect").attr("x", m.l).attr("y", m.t).attr("width", W - m.l - m.r).attr("height", H - m.t - m.b)
         .attr("fill", "transparent")
-        .on("pointermove", ev => hover(ev, Math.round(x.invert(d3.pointer(ev)[0]))))
-        .on("pointerleave", unhover);
+        .call(scrub, ev => hover(ev, Math.round(x.invert(d3.pointer(ev)[0]))), () => unhover());
       elMain.replaceChildren(svg.node());
 
       // chance strip
@@ -419,8 +444,7 @@
       hoverLine.push(cross2);
       sv.append("rect").attr("x", m.l).attr("y", ms.t).attr("width", W - m.l - m.r).attr("height", Hs - ms.t - ms.b)
         .attr("fill", "transparent")
-        .on("pointermove", ev => hover(ev, Math.round(x.invert(d3.pointer(ev)[0]))))
-        .on("pointerleave", unhover);
+        .call(scrub, ev => hover(ev, Math.round(x.invert(d3.pointer(ev)[0]))), () => unhover());
       elStrip.replaceChildren(sv.node());
 
       function hover(ev, d) {
@@ -1182,7 +1206,7 @@
     const cross = svg.append("line").attr("y1", m.t).attr("y2", H - m.b).attr("stroke", css("--ink-3")).attr("opacity", 0);
     const bis = d3.bisector(d => d.t).center;
     svg.append("rect").attr("x", m.l).attr("y", m.t).attr("width", W - m.l - m.r).attr("height", H - m.t - m.b).attr("fill", "transparent")
-      .on("pointermove", ev => {
+      .call(scrub, ev => {
         const t = x.invert(d3.pointer(ev)[0]);
         cross.attr("x1", x(t)).attr("x2", x(t)).attr("opacity", 0.8);
         let html = `<div class="t">${t.toLocaleString([], { month: "short", day: "numeric", hour: series[0].hourly ? "numeric" : undefined })}</div>`;
@@ -1197,8 +1221,7 @@
           if (Math.abs(d.t - t) < 36 * 3600e3) html += row(b.label, `${fmtValue ? fmtV(d.lo) : fmt(Math.round(d.lo))}–${fmtV(d.hi)}`);
         });
         showTip(html, ev);
-      })
-      .on("pointerleave", () => { cross.attr("opacity", 0); hideTip(); });
+      }, () => { cross.attr("opacity", 0); hideTip(); });
     el.replaceChildren(svg.node());
   }
 
