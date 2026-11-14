@@ -12,7 +12,10 @@ for the first weeks and by the weather of past years after that. It runs about 1
 We only summarise it: daily averages (Arizona time) of each run, then percentiles across runs.
 
   long_range  from the last full day of the NWS forecast to day 21: 10/25/50/75/90th percentiles.
-  seasonal    from day 22 to the end of the ensemble, the same percentiles, plus the average flow of
+  seasonal    from day 22 to the end of the ensemble, the same percentiles, smoothed so the chart shows the
+              seasonal shape rather than single storms in single runs: each day pools every run's flows
+              within +/- SE_POOL days, then the percentile curves are averaged over +/- SE_SMOOTH days
+              in log space. Plus the average flow of
               each calendar month the ensemble fully covers (25/50/75th percentiles across runs),
               with that month's typical range from the USGS record for comparison.
 
@@ -34,6 +37,8 @@ LR_DAYS = 21          # long range runs to this many days after the latest obser
 SE_START = 22         # seasonal starts here
 AZ = timedelta(hours=-7)  # Arizona: UTC-7 all year
 PCT = [10, 25, 50, 75, 90]
+SE_POOL = 15          # seasonal: each day pools all runs' flows within +/- this many days
+SE_SMOOTH = 7         # seasonal: +/- days of smoothing on the percentile curves (log space)
 
 
 def ensemble_daily(ens):
@@ -55,6 +60,16 @@ def ensemble_daily(ens):
 def rows(days, Q, i0, i1):
     p = np.percentile(Q[:, i0:i1], PCT, axis=0)
     return [[days[i0 + k].isoformat()] + [round(float(v)) for v in p[:, k]] for k in range(i1 - i0)]
+
+
+def smooth_rows(days, Q, i0):
+    """Seasonal rows from day index i0 to the end, pooled over +/- SE_POOL days and smoothed."""
+    n = Q.shape[1]
+    raw = np.array([np.percentile(Q[:, max(0, i - SE_POOL):min(n, i + SE_POOL + 1)], PCT) for i in range(i0, n)])
+    lg = np.log(np.maximum(raw, 1))
+    pad = np.pad(lg, ((SE_SMOOTH, SE_SMOOTH), (0, 0)), mode="edge")
+    sm = np.exp(np.array([pad[k:k + 2 * SE_SMOOTH + 1].mean(0) for k in range(len(raw))]))
+    return [[days[i0 + k].isoformat()] + [round(float(v)) for v in sm[k]] for k in range(len(raw))]
 
 
 def nws_last_full_day(outlook):
@@ -127,7 +142,7 @@ def main(slug):
             months.append({"month": m.strftime("%Y-%m"), "p25": round(p25), "p50": round(p50), "p75": round(p75),
                            "clim_p25": c25, "clim_p50": c50, "clim_p75": c75})
             m = nxt
-        se = {"daily_columns": ["date"] + [f"p{p}" for p in PCT], "daily": rows(days, Q, i0, len(days)),
+        se = {"daily_columns": ["date"] + [f"p{p}" for p in PCT], "daily": smooth_rows(days, Q, i0),
               "months": months}
 
     out = {"site": flows["site"], "generated": datetime.now(timezone.utc).isoformat(timespec="minutes"),

@@ -1349,7 +1349,7 @@
       });
       legend($("se-legend"), [{ label: "Ensemble median", color: c1, line: true },
         { label: "50% range", color: c1, opacity: 0.4 }, { label: "80% range", color: c1, opacity: 0.2 }]);
-      $("se-note").textContent = `Daily average flow, log scale. Typical months are the middle half of past years in the USGS record. ${credit}`;
+      $("se-note").textContent = `Daily average flow, log scale, pooled over a month around each date and smoothed, so it shows the seasonal pattern rather than single storms in single runs. Typical months are the middle half of past years in the USGS record. ${credit}`;
       draw();
       new ResizeObserver(debounce(draw, 120)).observe($("chart-se"));
     }
