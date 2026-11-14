@@ -1,0 +1,96 @@
+{
+  "slug": "salt",
+  "last_verified": "2026-11-12",
+  "season": {"start": "03-01", "end": "05-15", "label": "Permit season"},
+  "flow_guide": {
+    "_about": "Flow bands by craft at USGS 09497500 (Salt River near Chrysotile, at the put-in), compiled 2026-11-13 from American Whitewater, Mild to Wild, cacreeks, Riverbrain and Williams' Paddling Arizona; raft bands set by the site owner. 'range' is the default 'your range' on Seasonal flows: every band from the first runnable one to the last before experts-only.",
+    "default": "rafts",
+    "crafts": {
+      "rafts": {
+        "label": "Rafts",
+        "range": [800, 6000],
+        "bands": [
+          {"max": 800, "label": "Too low", "tone": "out", "note": "Too low for loaded rafts; day-trip rafts need about 500 cfs. Black Rock is unrunnable at 500-600 cfs and below."},
+          {"max": 1200, "label": "Bony", "tone": "low", "note": "Scrapey. With bigger rafts, consider launching at Camp 5 instead of Camp 1. Avoid Island Rapid below 1,200 cfs."},
+          {"max": 2000, "label": "Solid flow", "tone": "good", "note": "1,200 cfs is American Whitewater's recommended minimum for gear-hauling rafts."},
+          {"max": 3000, "label": "Ideal", "tone": "best", "note": "Class III pool-drop with Class IV in the lower gorges."},
+          {"max": 6000, "label": "Fast", "tone": "high", "note": "Big wave trains and more rapids at Class IV; little time to recover between drops."},
+          {"max": null, "label": "High: experts only", "tone": "out", "note": "Huge waves, several IV+ rapids, Cibecue Creek hard to cross, flood risk."}
+        ]
+      },
+      "kayaks": {
+        "label": "Kayaks",
+        "range": [200, 3000],
+        "bands": [
+          {"max": 200, "label": "Too low", "tone": "out", "note": "Below the published minimums for inflatable kayaks and packrafts."},
+          {"max": 400, "label": "Low, technical", "tone": "low", "note": "Scraping and some walking; Black Rock is often walked."},
+          {"max": 1500, "label": "Good", "tone": "best", "note": "American Whitewater: rapids are enjoyable down to about 400 cfs for kayaks and packrafts."},
+          {"max": 3000, "label": "Pushy", "tone": "high", "note": "Class IV in the lower gorges; strong skills needed."},
+          {"max": null, "label": "Experts with a roll only", "tone": "out", "note": "A self-support ducky party at about 5,000 cfs did not recommend it to anyone without a roll."}
+        ]
+      }
+    },
+    "notes": "Flows usually drop during a trip, so check the whole trip, not just launch day. Low water makes some rapids harder, not easier: at low water a few approach Class V. Cibecue, Canyon and Cherry creeks add water below the gauge.",
+    "sources": [
+      {"text": "American Whitewater: Salt 02, US 60 to Hwy 288", "url": "https://www.americanwhitewater.org/content/River/view/river-detail/123/main"},
+      {"text": "Mild to Wild: conditions by water level", "url": "https://mild2wildrafting.com/?p=61545"},
+      {"text": "cacreeks: Upper Salt River", "url": "https://cacreeks.com/salt.htm"},
+      {"text": "Riverbrain: Upper Salt", "url": "https://riverbrain.com/run/show/487"},
+      {"text": "Tonto NF: Salt River Canyon Wilderness", "url": "https://www.fs.usda.gov/r03/tonto/permits/salt-river-canyon-wilderness"}
+    ]
+  },
+  "summary": "A Tonto National Forest permit, won in a winter lottery, is required to float the Salt River Canyon Wilderness from March 1 to May 15. A separate White Mountain Apache Tribe recreation permit is required for the reservation stretch below the Highway 60 put-in.",
+  "key_dates": [
+    {"date": "2026-12-01", "label": "Lottery opens on Recreation.gov"},
+    {"date": "2027-01-31", "label": "Lottery closes"},
+    {"date": "2027-02-20", "label": "Permit fee ($125) due for winners"},
+    {"date": "2027-03-01", "label": "Permit season starts"},
+    {"date": "2027-05-15", "label": "Permit season ends"}
+  ],
+  "permits": [
+    {
+      "name": "Salt River Canyon Wilderness permit",
+      "issuer": "Tonto National Forest (USDA Forest Service)",
+      "when": "Required March 1 to May 15 each year",
+      "how": "Lottery on Recreation.gov, December 1 to January 31. One application per person.",
+      "cost": "$125 per permit, due by February 20 after the drawing",
+      "links": [
+        {"text": "Apply on Recreation.gov", "url": "https://www.recreation.gov/permits/249275"},
+        {"text": "Tonto NF permit page", "url": "https://www.fs.usda.gov/r03/tonto/permits/salt-river-canyon-wilderness"}
+      ]
+    },
+    {
+      "name": "White Mountain Apache Tribe recreation permit",
+      "issuer": "White Mountain Apache Tribe",
+      "when": "Required for about 29 miles downstream of First Campground and the Highway 60 bridge put-in",
+      "how": "Buy from the Tribe's outdoor recreation office. Print it or save it to your phone: there is no cell service at the put-in.",
+      "cost": "Check current fees with the Tribe",
+      "links": [
+        {"text": "WMAT outdoor recreation", "url": "https://wmatoutdoor.org/"}
+      ],
+      "phone": "(928) 338-4385"
+    }
+  ],
+  "rules": [
+    "Group size: 15 people or fewer.",
+    "Permit holder must be 18 or older and must organize a non-commercial trip. No commercial use by participants.",
+    "Launch on your permitted date. Carry the signed permit; every person carries a valid photo ID.",
+    "Fire pan with sides at least 3 inches high. Self-support kayak trips may use a fire blanket instead.",
+    "Portable toilet system for all solid human waste; carry it all out of the river corridor.",
+    "No motorized equipment or motorboats in the wilderness.",
+    "Whitewater boating is prohibited by the Tribe upstream of Apache Falls, a quarter mile above the Highway 60 bridge.",
+    "Cancel at least 21 days before launch for a refund. Cancelled dates go back on Recreation.gov at a random time within 24 hours."
+  ],
+  "contacts": [
+    {"name": "Tonto National Forest Supervisor's Office", "phone": "602-225-5200"},
+    {"name": "White Mountain Apache Tribe (tribal permits)", "phone": "(928) 338-4385"}
+  ],
+  "open_questions": [
+    "Lottery results date is not published on the Forest Service page.",
+    "Whether a San Carlos Apache Tribe permit is also needed on river left; confirm with both tribes."
+  ],
+  "sources": [
+    {"text": "Tonto NF: Salt River Canyon Wilderness", "url": "https://www.fs.usda.gov/r03/tonto/permits/salt-river-canyon-wilderness"},
+    {"text": "Recreation.gov permit 249275", "url": "https://www.recreation.gov/permits/249275"}
+  ]
+}

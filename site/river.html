@@ -1,0 +1,255 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Upper Salt River | River Trip Planner</title>
+  <meta name="description" content="Seasonal flows, permits, basin map and flow outlook for the Upper Salt River, Arizona.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600&display=swap">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow"><a href="./">River Trip Planner</a> / <span id="river-state">Arizona</span></p>
+      <h1 id="river-name">Upper Salt River</h1>
+      <p class="section-name" id="river-section"></p>
+      <div class="now" id="now" aria-live="polite"></div>
+    </div>
+    <nav class="tabs wrap" role="tablist" aria-label="River page sections">
+      <button role="tab" id="tab-current" aria-controls="panel-current" aria-selected="false" tabindex="-1">Current flows</button>
+      <button role="tab" id="tab-seasonal" aria-controls="panel-seasonal" aria-selected="true">Seasonal flows</button>
+      <button role="tab" id="tab-permitting" aria-controls="panel-permitting" aria-selected="false" tabindex="-1">Permitting</button>
+      <button role="tab" id="tab-map" aria-controls="panel-map" aria-selected="false" tabindex="-1">Basin map</button>
+      <button role="tab" id="tab-outlook" aria-controls="panel-outlook" aria-selected="false" tabindex="-1">Flow outlook</button>
+      <button role="tab" id="tab-weather" aria-controls="panel-weather" aria-selected="false" tabindex="-1">Weather</button>
+    </nav>
+  </header>
+
+  <main class="wrap">
+    <!-- 0. Current flows -->
+    <section role="tabpanel" id="panel-current" aria-labelledby="tab-current" hidden>
+      <div class="panel-head">
+        <h2>How is it running?</h2>
+      </div>
+      <div class="guides" id="flow-guides"></div>
+      <h3>Next 7 days</h3>
+      <div class="tiles" id="week-tiles"></div>
+      <div class="chart-card">
+        <div class="legend" id="week-legend"></div>
+        <div class="chart" id="chart-week"></div>
+        <p class="note" id="week-note"></p>
+      </div>
+    </section>
+
+    <!-- 1. Seasonal flows -->
+    <section role="tabpanel" id="panel-seasonal" aria-labelledby="tab-seasonal">
+      <div class="panel-head">
+        <h2>When does it usually run?</h2>
+        <p class="lede" id="seasonal-lede"></p>
+      </div>
+      <div class="controls" id="seasonal-controls">
+        <label>Years
+          <select id="ctl-years">
+            <option value="all">All years</option>
+            <option value="30" selected>Last 30 years</option>
+            <option value="10">Last 10 years</option>
+          </select>
+        </label>
+        <label>Compare year <select id="ctl-compare"></select></label>
+        <label id="ctl-craft-wrap" hidden>Boat <select id="ctl-craft"></select></label>
+        <label>Your range, cfs
+          <span class="pair"><input id="ctl-min" type="number" min="0" step="50" inputmode="numeric"> to <input id="ctl-max" type="number" min="0" step="100" inputmode="numeric"></span>
+        </label>
+      </div>
+      <div class="chart-card">
+        <div class="legend" id="seasonal-legend"></div>
+        <div class="chart" id="chart-seasonal"></div>
+        <div class="chart chart-strip" id="chart-chance"></div>
+        <p class="note" id="seasonal-note"></p>
+      </div>
+
+      <div class="planner">
+        <h3>Check a launch date</h3>
+        <div class="controls">
+          <label>Launch date <input id="ctl-launch" type="date"></label>
+          <label>Trip length, days <input id="ctl-days" type="number" min="1" max="14" value="4" inputmode="numeric"></label>
+        </div>
+        <div class="tiles" id="planner-tiles"></div>
+      </div>
+    </section>
+
+    <!-- 2. Permitting -->
+    <section role="tabpanel" id="panel-permitting" aria-labelledby="tab-permitting" hidden>
+      <div class="panel-head">
+        <h2>How do I get on this river?</h2>
+        <p class="lede" id="permit-summary"></p>
+      </div>
+      <div class="permit-grid">
+        <div>
+          <h3>Key dates</h3>
+          <ol class="dates" id="permit-dates"></ol>
+        </div>
+        <div id="permit-cards"></div>
+      </div>
+      <h3>Rules on the river</h3>
+      <ul class="rules" id="permit-rules"></ul>
+      <div class="two-col">
+        <div><h3>Contacts</h3><ul class="plain" id="permit-contacts"></ul></div>
+        <div><h3>Still to confirm</h3><ul class="plain" id="permit-open"></ul></div>
+      </div>
+      <p class="note" id="permit-verified"></p>
+    </section>
+
+    <!-- 3. Basin map -->
+    <section role="tabpanel" id="panel-map" aria-labelledby="tab-map" hidden>
+      <div class="panel-head">
+        <h2>Where everything is</h2>
+        <p class="lede">The Salt forms where the Black and White Rivers meet, upstream of the Highway 60 put-in. Snow on the White Mountains feeds the spring runoff. Hover over (or tap) a gauge or snow station to see its last 7 days.</p>
+      </div>
+      <div id="basin-map" class="map" role="region" aria-label="Basin map"></div>
+      <div id="map-legend" class="map-legend below"></div>
+      <p class="note">Terrain: USGS 3DEP elevation. Rivers and lakes: NHDPlus; line width shows long-term mean flow, scaled to the put-in gauge. Take-out location is approximate. Roads: USGS National Map.</p>
+    </section>
+
+    <!-- 4. Flow outlook -->
+    <section role="tabpanel" id="panel-outlook" aria-labelledby="tab-outlook" hidden>
+      <div class="panel-head">
+        <h2>What will flows be?</h2>
+        <p class="lede">Short range comes from the National Weather Service river forecast. The 3-week and 3-month outlooks come from the river forecast center's ensemble forecast. Only small lakes sit upstream, so no dam controls this run.</p>
+      </div>
+      <div class="subtabs" role="tablist" aria-label="Outlook sections">
+        <button role="tab" id="subtab-season" aria-controls="outlook-season" aria-selected="true">Long range and snowpack</button>
+        <button role="tab" id="subtab-model" aria-controls="outlook-model" aria-selected="false" tabindex="-1">Our model (experimental)</button>
+        <button role="tab" id="subtab-reservoirs" aria-controls="outlook-reservoirs" aria-selected="false" tabindex="-1">Reservoir status</button>
+      </div>
+
+      <article id="outlook-model" class="block" role="tabpanel" aria-labelledby="subtab-model" hidden>
+        <div class="callout">
+          <strong>Coming: our experimental forecast.</strong>
+          Our Salt River model gives 1–7 day flow ranges for this gauge. In testing it beats the official forecast at low and normal flows but misses some flood peaks. It will appear here once it runs daily (planned February 2027).
+        </div>
+      </article>
+
+      <article id="outlook-season" class="block" role="tabpanel" aria-labelledby="subtab-season" hidden>
+        <section class="sub-block" id="lr-block">
+          <h3>Next 3 weeks</h3>
+          <p class="lede" id="lr-lede"></p>
+          <div class="chart-card">
+            <div class="legend" id="lr-legend"></div>
+            <div class="chart" id="chart-lr"></div>
+            <p class="note" id="lr-note"></p>
+          </div>
+        </section>
+        <section class="sub-block" id="se-block">
+          <h3>Next 3 months</h3>
+          <p class="lede" id="se-lede"></p>
+          <div class="tiles" id="se-tiles"></div>
+          <div class="chart-card">
+            <div class="legend" id="se-legend"></div>
+            <div class="chart" id="chart-se"></div>
+            <p class="note" id="se-note"></p>
+          </div>
+        </section>
+        <h3>Snowpack</h3>
+        <p id="snow-lede"></p>
+        <div class="snow-grid">
+          <div class="chart-card">
+            <div class="snow-map" id="snow-map" role="img" aria-label="Map of current snow water equivalent in the basin above the put-in"></div>
+            <div class="legend snow-key" id="snow-map-legend"></div>
+            <p class="note" id="snow-map-note"></p>
+          </div>
+          <div class="chart-card">
+            <div class="legend" id="snow-legend"></div>
+            <div class="chart" id="chart-snow"></div>
+            <p class="note" id="snow-note"></p>
+          </div>
+        </div>
+        <div class="two-col">
+          <figure class="outlook-img">
+            <img src="https://www.cpc.ncep.noaa.gov/products/predictions/814day/814prcp.new.gif" alt="NOAA CPC 8 to 14 day precipitation outlook map" loading="lazy">
+            <figcaption>8–14 day precipitation outlook (NOAA CPC). Green = wetter than normal favored.</figcaption>
+          </figure>
+          <figure class="outlook-img">
+            <img src="https://www.cpc.ncep.noaa.gov/products/predictions/long_range/lead01/off01_prcp.gif" alt="NOAA CPC three month precipitation outlook map" loading="lazy">
+            <figcaption>Next 3 months precipitation outlook (NOAA CPC).</figcaption>
+          </figure>
+        </div>
+        <p>The 3-week and 3-month outlooks above come from the NWS Colorado Basin River Forecast Center. <a id="cbrfc-link" href="https://www.cbrfc.noaa.gov/dbdata/station/ensgraph/ensgraph.html?id=SLCA3" target="_blank" rel="noopener">See their ensemble forecast for this gauge</a>. From January through May they also publish a seasonal runoff volume forecast: <a href="https://www.cbrfc.noaa.gov/wsup/graph/espgraph_hc.html?id=SLCA3" target="_blank" rel="noopener">CBRFC water supply forecast for SLCA3</a>.</p>
+      </article>
+
+      <article id="outlook-reservoirs" class="block" role="tabpanel" aria-labelledby="subtab-reservoirs" hidden>
+        <p><strong>Only small lakes sit above the put-in, so no dam controls flows in the Salt River Canyon.</strong> The White Mountains headwaters have small reservoirs and lakes, such as Big Lake, Sunrise Lake, Hawley Lake and Horseshoe Cienega Lake. They are mainly fishing and recreation lakes, hold little next to a spring runoff, and are not operated to release water for boating. What you float is mostly rain and snowmelt passing through.</p>
+        <p>The nearest large dam is Roosevelt, at the bottom of the run, so its level matters only if you paddle on past the Highway 288 take-out onto the lake.</p>
+        <p>Salt River Project operates Roosevelt and the other Salt and Verde reservoirs. <a href="https://streamflow.watershedconnection.com/Dwr" target="_blank" rel="noopener">SRP daily water report</a>.</p>
+      </article>
+    </section>
+
+    <!-- 5. Weather -->
+    <section role="tabpanel" id="panel-weather" aria-labelledby="tab-weather" hidden>
+      <div class="panel-head">
+        <h2>What weather should I pack for?</h2>
+        <p class="lede" id="wx-lede"></p>
+      </div>
+
+      <h3 style="margin-top:0">Next 7 days</h3>
+      <div class="wx-days" id="wx-forecast"></div>
+      <p class="note" id="wx-forecast-note"></p>
+
+      <h3>Your trip</h3>
+      <div class="controls">
+        <label>Launch date <input id="wx-launch" type="date"></label>
+        <label>Trip length, days <input id="wx-days" type="number" min="1" max="14" value="4" inputmode="numeric"></label>
+      </div>
+      <div class="tiles" id="wx-trip"></div>
+      <p class="note" id="wx-trip-note"></p>
+
+      <h3>Water temperature</h3>
+      <p class="lede" id="wt-lede" style="margin:0 0 12px"></p>
+      <div class="tiles" id="wt-tiles"></div>
+      <div class="chart-card">
+        <div class="legend" id="wt-legend"></div>
+        <div class="chart" id="chart-wt"></div>
+        <p class="note" id="wt-note"></p>
+      </div>
+
+      <h3>Through the year</h3>
+      <div class="controls">
+        <label>Temperatures for <select id="wx-where">
+          <option value="put">Put-in (estimated)</option>
+          <option value="sta">Roosevelt, near the take-out</option>
+        </select></label>
+      </div>
+      <div class="chart-card">
+        <div class="legend" id="wx-temp-legend"></div>
+        <div class="chart" id="chart-wx-temp"></div>
+        <p class="note" id="wx-temp-note"></p>
+      </div>
+      <div class="chart-card" style="margin-top:14px">
+        <div class="legend" id="wx-sky-legend"></div>
+        <div class="chart" id="chart-wx-sky"></div>
+        <p class="note" id="wx-sky-note"></p>
+      </div>
+
+      <h3>By month</h3>
+      <div class="tbl-wrap"><table class="wx-table" id="wx-months"></table></div>
+      <p class="note" id="wx-sources"></p>
+    </section>
+  </main>
+
+  <footer class="wrap foot">
+    <p>Flow data: USGS. Forecasts: NOAA National Weather Service and Climate Prediction Center. Snowpack: USDA NRCS SNOTEL and NOAA NOHRSC. Weather history: NOAA stations via ACIS and NASA POWER. Permit details from the Tonto National Forest; book on <a href="https://www.recreation.gov/permits/249275" target="_blank" rel="noopener">Recreation.gov</a>. Not affiliated with Recreation.gov or any agency.</p>
+    <p id="build-time"></p>
+  </footer>
+
+  <div class="tooltip" id="tooltip" role="status" hidden></div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.9.0/d3.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+  <script src="js/native.js"></script>
+  <script src="js/river.js"></script>
+</body>
+</html>

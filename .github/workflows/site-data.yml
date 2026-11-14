@@ -1,0 +1,73 @@
+# Refreshes the river site's data every 6 hours (USGS flows, NWS forecast, SNOTEL, NOHRSC snow,
+# weather, extended outlooks) with site/build/update.py, then packages site/ for GitHub Pages.
+#
+# Data is not committed back: each run builds fresh data and deploys the whole site to GitHub Pages.
+name: Site data update
+
+on:
+  schedule:
+    - cron: "17 */6 * * *"   # every 6 hours, at :17 past (UTC); GitHub may start scheduled runs late
+  workflow_dispatch: {}
+  push:          # any branch, when the site or this workflow changes (scheduled runs use the default branch)
+    paths: ["site/**", ".github/workflows/site-data.yml"]
+
+concurrency:
+  group: site-data
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install Python packages
+        run: pip install numpy pillow matplotlib
+
+      # SNOTEL history and other slow downloads; build_extended refreshes SNOTEL history weekly anyway
+      - name: Restore download cache
+        uses: actions/cache@v4
+        with:
+          path: site/build/.cache
+          key: site-cache-${{ github.run_id }}
+          restore-keys: site-cache-
+
+      - name: Rebuild data (all rivers in rivers.json)
+        run: python site/build/update.py
+
+      - name: Show update log
+        if: always()
+        run: tail -n 60 site/build/.cache/update.log || true
+
+      - name: Assemble site
+        run: |
+          mkdir -p _site
+          rsync -a --exclude build/ --exclude README.md site/ _site/
+          du -sh _site
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+          retention-days: 3
+
+  deploy:
+    needs: build
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

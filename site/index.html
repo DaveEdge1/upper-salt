@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>River Trip Planner</title>
+  <meta name="description" content="Flows, permits, maps and forecasts for permitted river trips.">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600&family=IBM+Plex+Mono:wght@400;500&family=Source+Sans+3:wght@400;600&display=swap">
+  <link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+  <header class="hero">
+    <div class="wrap">
+      <p class="eyebrow">River Trip Planner</p>
+      <h1>Pick a river</h1>
+      <p class="section-name">Seasonal flows, permits, maps and the flow outlook for each permitted run.</p>
+    </div>
+  </header>
+  <main class="wrap">
+    <ul class="river-list" id="river-list" aria-live="polite"></ul>
+  </main>
+  <footer class="wrap foot">
+    <p>Flow data: USGS. Forecasts: NOAA. Not affiliated with Recreation.gov or any agency.</p>
+  </footer>
+  <script src="js/native.js"></script>
+  <script>
+    fetch("rivers.json").then(r => r.json()).then(({ rivers }) => {
+      const esc = t => String(t).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+      document.getElementById("river-list").innerHTML = rivers.map(r => `
+        <li><a class="river-card" href="river.html?r=${encodeURIComponent(r.slug)}">
+          <span class="name">${esc(r.name)}</span>
+          <span class="where">${esc(r.section || "")}${r.state ? ` · ${esc(r.state)}` : ""}</span>
+        </a></li>`).join("");
+    });
+  </script>
+</body>
+</html>
