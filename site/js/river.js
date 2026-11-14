@@ -1563,8 +1563,20 @@
       "feeding the spring runoff that the permit season is built around." +
       (M.above_snow_line ? ` About ${pct(M.above_snow_line.share)} of the basin above the put-in (${fmt(M.above_snow_line.area_mi2)} of ${fmt(M.above_snow_line.basin_mi2)} sq mi) ` +
         `lies above ${fmt(M.above_snow_line.feet)} ft, the high country that typically holds snowpack through the winter.` : "");
-    lede.textContent = (last && medNow >= 0.5
-      ? `Basin snowpack is ${pct(last.v / medNow)} of median for the date (${inch(last.v)} against ${inch(medNow)}). ` : "") + cycle;
+    lede.textContent = cycle;
+
+    // --- top line: % of median for the date, snow water now, share of the typical peak
+    const tile = (k, v, d) => `<div class="tile"><div class="k">${k}</div><div class="v">${v}</div><div class="d">${d}</div></div>`;
+    const asOf = last ? dayT(last.k).toLocaleDateString([], { month: "short", day: "numeric" }) : "";
+    let pm;
+    if (!last) pm = tile("Snowpack, % of median", "–", "No reading yet this water year");
+    else if (!(medNow > 0)) pm = tile("Snowpack, % of median", "–", `The median on ${asOf} is no snow, so there is nothing to compare`);
+    else pm = tile("Snowpack, % of median", pct(last.v / medNow),
+      `${inch(last.v)} vs a median of ${inch(medNow)}, ${asOf}` +
+      (medNow < 1 ? `. Small ${dayT(last.k).getMonth() >= 8 || dayT(last.k).getMonth() <= 1 ? "early" : "late"}-season amounts swing this a lot` : ""));
+    $("snow-tiles").innerHTML = pm +
+      (last ? tile("Snow water now", inch(last.v), `Average of ${ix.sites.length} SNOTEL sites, ${asOf}`) : "") +
+      (last ? tile("Share of a typical peak", pct(last.v / pk.in), `Median winter peak: ${inch(pk.in)}, ${part(dayT(pk.day))}`) : "");
 
     // --- the map: terrain (same lat/lon grid as the Basin map) + NOHRSC SWE + basin outline, rivers, SNOTEL
     const host = $("snow-map");
