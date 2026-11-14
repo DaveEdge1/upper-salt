@@ -41,7 +41,8 @@ jobs:
           restore-keys: site-cache-
 
       - name: Rebuild data (all rivers in rivers.json)
-        run: python site/build/update.py
+        # a data source that is down (they all are, now and then) keeps its previous file; still deploy
+        run: python site/build/update.py || echo "::warning::Some data sources failed; their previous files were kept. See the update log below."
 
       - name: Show update log
         if: always()
